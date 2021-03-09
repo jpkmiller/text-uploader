@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8" />
+    <meta author="jpkmiller">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        function uploadText(text) {
+            const response = document.getElementById('response-hash')
+            const URL = '/upload/' + text;
+            axios({
+                method: 'post',
+                url: URL
+            })
+                .then(data => {
+                    response.value = data.data
+                })
+                .catch(err => console.err(err))
+        }
+
+        function inputText() {
+            const text = document.getElementById('text').value;
+            uploadText(text)
+        }
+
+        function uploadHash(hash) {
+            const response = document.getElementById('response-text')
+            const URL = '/request/' + hash
+            axios({
+                method: 'get',
+                url: URL
+            })
+                .then(data => {
+                    response.value = data.data
+                })
+                .catch(err => console.log(err))
+        }
+
+        function inputHash() {
+            const hash = document.getElementById('hash').value;
+            uploadHash(hash)
+        }
+
+        function copy(element) {
+            var copyText = document.getElementById(element);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999)
+            document.execCommand("copy");
+        }
+    </script>
+</head>
+
+<body>
+    <h1 id="title">Text Uploader by
+        <a href="https://github.com/jpkmiller" target="_blank" rel="noopener">jpkmiller</a>
+    </h1>
+    <h2 id="text-info">Texts are deleted after 24 hours. After sending the text you receive a hash.</h2>
+    
+    <label for="text">Input Text</label>
+    <input type="text" id="text">
+    <button onclick="inputText()">Upload Text</button>
+    
+    <br>
+    <br>
+
+    <label for="response">Response Hash</label>
+    <input type="text" id="response-hash" readonly="readonly">
+    <button onclick="copy('response-hash')">Copy Hash</button>
+
+    <br>
+    <br>
+    <br>
+
+    <label>Input Hash</label>
+    <input type="text" id="hash">
+    <button onclick="inputHash()">Upload Hash</button>
+
+    <br>
+    <br>
+
+    <label for="response">Response Text</label>
+    <input type="text" id="response-text" readonly="readonly">
+    <button onclick="copy('response-text')">Copy Hash</button>
+
+    <noscript>
+        It seems that JavaScript is currently deactivated. Some functions might not be usable!
+    </noscript>
+</body>
+
+</html>
