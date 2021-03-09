@@ -1,5 +1,5 @@
 {
-  "name": "img-uploader",
+  "name": "text-uploader",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "express": "^4.17.1"
   }
 }

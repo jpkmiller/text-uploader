@@ -18,10 +18,12 @@ app.use(cors())
 const texts_json = fs.readFileSync('texts.json')
 const texts = JSON.parse(texts_json)
 
-
+/*
 app.get('/', (req, res) => {
-    res.status(200).sendFile(path.join(__dirname + '/index.html'))
+    const htmlPath = path.join(__dirname + '/index.html')
+    res.status(200).sendFile(htmlPath)
 })
+*/
 
 app.post('/upload/:text', (req, res) => {
     const text = req.params.text
