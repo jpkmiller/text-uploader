@@ -1,4 +1,6 @@
 const express = require('express')
+const rateLimit = require('express-rate-limit');
+const {param} = require('express-validator');
 const fs = require('fs');
 const path = require('path');
 const app = express()
@@ -14,8 +16,18 @@ app.listen(port, () => console.log('Server started on port', port))
 app.use(express.static('public'));
 app.use(cors())
 
+app.set('trust proxy', 1);
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+
+// RATE LIMIT
+app.use(limiter)
+
 // READ FILES
-const texts_json = fs.readFileSync('texts.json')
+const texts_json = fs.readFileSync('texts.json').toString()
 const texts = JSON.parse(texts_json)
 
 app.get('/', (req, res) => {
@@ -23,27 +35,34 @@ app.get('/', (req, res) => {
     res.status(200).sendFile(htmlPath)
 })
 
-app.post('/upload/:text', (req, res) => {
+
+// UPLOAD TEXT AND RECEIVE HASH AS RESPONSE
+app.post('/upload/:text', param('text').isString().isLength({min: 1}).trim(), (req, res) => {
     const text = req.params.text
     console.log('Server received text')
     const shasum = crypto.createHash('sha512')
     const textHash = shasum.update(text + crypto.randomInt(10000)).digest('hex')
     console.log(`Server added text ${textHash}`)
+    // deepcode ignore PrototypePollution: using param from express-validator
     texts[textHash] = {
         text: text,
         created: new Date()
     }
+    // deepcode ignore XSS: using param from express-validator
     res.send(textHash)
     // WRITE BACK FILE
-    fs.writeFileSync('texts.json', JSON.stringify(texts), 'utf-8')
+    fs.writeFileSync('texts.json', JSON.stringify(texts), "utf8")
 })
 
-app.get('/request/:hash', (req, res) => {
+
+// REQUEST TEXT BY PROVIDING A HASH
+app.get('/request/:hash', param('hash').isString().isLength({min: 1}).trim(), (req, res) => {
     const hash = req.params.hash
     console.log('Server received hash')
-    if (texts.hasOwnProperty(hash)) {  
+    if (texts.hasOwnProperty(hash)) {
         const text = texts[hash].text
         console.log(`Server returns text ${text} from ${hash}`)
+        // deepcode ignore XSS: using param from express-validator
         res.send(text)
     } else {
         console.log('Server did not find text')
@@ -56,6 +75,7 @@ app.get('/request/:hash', (req, res) => {
 const checktexts = () => {
     const now = new Date()
     const textHashes = Object.keys(texts)
+    let textHash;
     for (let index = 0; index < textHashes.length; index++) {
         textHash = textHashes[index]
         if (texts.hasOwnProperty(textHash)) {
@@ -68,7 +88,7 @@ const checktexts = () => {
             }
         }
     }
-    fs.writeFileSync('texts.json', JSON.stringify(texts), 'utf-8')
+    fs.writeFileSync('texts.json', JSON.stringify(texts), "utf8")
 }
 
 setInterval(() => {

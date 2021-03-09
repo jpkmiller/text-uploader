@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta author="jpkmiller">
+    <title>Text Uploader by jpkmiller</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
         function uploadText(text) {
@@ -16,7 +16,7 @@
                 .then(data => {
                     response.value = data.data
                 })
-                .catch(err => console.err(err))
+                .catch(err => console.error(err))
         }
 
         function inputText() {
@@ -43,7 +43,7 @@
         }
 
         function copy(element) {
-            var copyText = document.getElementById(element);
+            const copyText = document.getElementById(element);
             copyText.select();
             copyText.setSelectionRange(0, 99999)
             document.execCommand("copy");
@@ -55,7 +55,8 @@
     <h1 id="title">Text Uploader by
         <a href="https://github.com/jpkmiller" target="_blank" rel="noopener">jpkmiller</a>
     </h1>
-    <h2 id="text-info">Texts are deleted after 24 hours. After sending the text you receive a hash.</h2>
+    <h2 id="text-info">Texts are deleted after 24 hours. After uploading the text you receive a hash.</h2>
+    <h2>Please do not upload any sensible information.</h2>
     
     <label for="text">Input Text</label>
     <input type="text" id="text">
@@ -64,7 +65,7 @@
     <br>
     <br>
 
-    <label for="response">Response Hash</label>
+    <label for="response-hash">Response Hash</label>
     <input type="text" id="response-hash" readonly="readonly">
     <button onclick="copy('response-hash')">Copy Hash</button>
 
@@ -73,15 +74,15 @@
     <br>
 
     <label>Input Hash</label>
-    <input type="text" id="hash">
+    <label for="hash"></label><input type="text" id="hash">
     <button onclick="inputHash()">Upload Hash</button>
 
     <br>
     <br>
 
-    <label for="response">Response Text</label>
+    <label for="response-text">Response Text</label>
     <input type="text" id="response-text" readonly="readonly">
-    <button onclick="copy('response-text')">Copy Hash</button>
+    <button onclick="copy('response-text')">Copy Text</button>
 
     <noscript>
         It seems that JavaScript is currently deactivated. Some functions might not be usable!
