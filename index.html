@@ -8,7 +8,7 @@
     <script>
         function uploadText(text) {
             const response = document.getElementById('response-hash')
-            const responseWithPage = document.getElementById('response-hash-with-page')
+            const responseWithURL = document.getElementById('response-hash-with-url')
             const URL = '/upload/' + text;
             axios({
                 method: 'post',
@@ -17,7 +17,7 @@
                 .then(data => {
                     response.value = data.data
                     const getUrl = window.location;
-                    responseWithPage.value = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + 'request/' + data.data
+                    responseWithURL.value = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + 'request/' + data.data
                 })
                 .catch(err => console.error(err))
         }
@@ -45,11 +45,19 @@
             uploadHash(hash)
         }
 
-        function copy(element, copyPage=false) {
+        function copy(element) {
             const copyText = document.getElementById(element);
             copyText.select();
             copyText.setSelectionRange(0, 99999)
             document.execCommand("copy");
+        }
+
+        function clearAllInputs() {
+            const inputs = document.querySelectorAll('input, textarea')
+            for (let i = 0; i < inputs.length; i++) {
+                inputs[i].value = ''
+                inputs[i].innerText = ''
+            }
         }
     </script>
 </head>
@@ -75,16 +83,16 @@
     <br>
     <br>
 
-    <label for="response-hash-with-page">Response URL</label>
-    <input type="text" id="response-hash-with-page" readonly="readonly">
-    <button onclick="copy('response-hash-with-page')">Copy URL</button>
+    <label for="response-hash-with-url">Response URL</label>
+    <input type="text" id="response-hash-with-url" readonly="readonly">
+    <button onclick="copy('response-hash-with-url')">Copy URL</button>
 
     <br>
     <br>
     <br>
 
-    <label>Input Hash</label>
-    <label for="hash"></label><input type="text" id="hash">
+    <label for="hash">Input Hash</label>
+    <input type="text" id="hash">
     <button onclick="inputHash()">Upload Hash</button>
 
     <br>
@@ -93,6 +101,12 @@
     <label for="response-text">Response Text</label>
     <textarea type="text" id="response-text" readonly="readonly"></textarea>
     <button onclick="copy('response-text')">Copy Text</button>
+
+    <br>
+    <br>
+    <br>
+
+    <button onclick="clearAllInputs()">Clear All</button>
 
     <noscript>
         It seems that JavaScript is currently deactivated. Some functions might not be usable!
