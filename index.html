@@ -8,6 +8,7 @@
     <script>
         function uploadText(text) {
             const response = document.getElementById('response-hash')
+            const responseWithPage = document.getElementById('response-hash-with-page')
             const URL = '/upload/' + text;
             axios({
                 method: 'post',
@@ -15,6 +16,8 @@
             })
                 .then(data => {
                     response.value = data.data
+                    const getUrl = window.location;
+                    responseWithPage.value = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + 'request/' + data.data
                 })
                 .catch(err => console.error(err))
         }
@@ -42,7 +45,7 @@
             uploadHash(hash)
         }
 
-        function copy(element) {
+        function copy(element, copyPage=false) {
             const copyText = document.getElementById(element);
             copyText.select();
             copyText.setSelectionRange(0, 99999)
@@ -68,6 +71,13 @@
     <label for="response-hash">Response Hash</label>
     <input type="text" id="response-hash" readonly="readonly">
     <button onclick="copy('response-hash')">Copy Hash</button>
+
+    <br>
+    <br>
+
+    <label for="response-hash-with-page">Response URL</label>
+    <input type="text" id="response-hash-with-page" readonly="readonly">
+    <button onclick="copy('response-hash-with-page')">Copy URL</button>
 
     <br>
     <br>

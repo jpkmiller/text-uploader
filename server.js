@@ -27,8 +27,17 @@ const limiter = rateLimit({
 app.use(limiter)
 
 // READ FILES
-const texts_json = fs.readFileSync('texts.json').toString()
-const texts = JSON.parse(texts_json)
+let texts;
+try {
+    const texts_json = fs.readFileSync('texts.json').toString()
+    texts = JSON.parse(texts_json)
+} catch (err) {
+    console.log('Server created texts.json.')
+    fs.writeFileSync('texts.json', '{}')
+    const texts_json = fs.readFileSync('texts.json').toString()
+    texts = JSON.parse(texts_json)
+}
+
 
 app.get('/', (req, res) => {
     const htmlPath = path.join(__dirname + '/index.html')
@@ -39,10 +48,10 @@ app.get('/', (req, res) => {
 // UPLOAD TEXT AND RECEIVE HASH AS RESPONSE
 app.post('/upload/:text', param('text').isString().isLength({min: 1}).trim(), (req, res) => {
     const text = req.params.text
-    console.log('Server received text')
+    console.log('Server received text.')
     const shasum = crypto.createHash('sha512')
     const textHash = shasum.update(text + crypto.randomInt(10000)).digest('hex')
-    console.log(`Server added text ${textHash}`)
+    console.log(`Server added text ${textHash}.`)
     // deepcode ignore PrototypePollution: using param from express-validator
     texts[textHash] = {
         text: text,
@@ -58,14 +67,14 @@ app.post('/upload/:text', param('text').isString().isLength({min: 1}).trim(), (r
 // REQUEST TEXT BY PROVIDING A HASH
 app.get('/request/:hash', param('hash').isString().isLength({min: 1}).trim(), (req, res) => {
     const hash = req.params.hash
-    console.log('Server received hash')
+    console.log('Server received hash.')
     if (texts.hasOwnProperty(hash)) {
         const text = texts[hash].text
-        console.log(`Server returns text ${text} from ${hash}`)
+        console.log(`Server returns text ${text} from ${hash}.`)
         // deepcode ignore XSS: using param from express-validator
         res.send(text)
     } else {
-        console.log('Server did not find text')
+        console.log('Server did not find text.')
         res.sendStatus(404)
     }
 })
@@ -83,7 +92,7 @@ const checktexts = () => {
 
             // CHECK IF 24 HOURS HAVE PASSED
             if (now - date >= HOURS_24) {
-                console.log(`Deleting text ${textHash}`)
+                console.log(`Deleting text ${textHash}.`)
                 delete texts[textHash]
             }
         }
