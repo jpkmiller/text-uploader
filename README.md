@@ -3,6 +3,8 @@
 A simple text uploader using [node.js](https://nodejs.org).\
 Texts are deleted after 24 hours.
 
+Hosted on heroku. Try it [here](https://jpks-text-uploader.herokuapp.com/)
+
 ## REST API
 
 `POST /upload/ + text` to upload text and receive hash\
