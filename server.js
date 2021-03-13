@@ -1,8 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const rateLimit = require('express-rate-limit');
 const {param} = require('express-validator');
 const {MongoClient} = require('mongodb');
-const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const crypto = require('crypto');
@@ -13,7 +13,7 @@ const DELETION_THRESHOLD = 60 * 60 * 24 * 1000;
 // INIT SERVER
 const app = express()
 const port = process.env.PORT || 8081
-app.listen(port, () => console.log('Server started on port', port))
+app.listen(port, () => console.log(`Server started on port ${port}...`))
 app.use(express.static('public'));
 app.use(cors())
 
@@ -37,11 +37,11 @@ app.get('/', (req, res) => {
 // UPLOAD TEXT AND RECEIVE HASH AS RESPONSE
 app.post('/upload/:text', param('text').isString().isLength({min: 1}).trim(), async (req, res) => {
     const text = req.params.text
-    console.log(`Server received text ${text}.`)
+    console.log(`Server received text ${text}...`)
     const shasum = crypto.createHash('sha512')
     const textHash = shasum.update(text + crypto.randomInt(10000)).digest('hex')
 
-    const client = new MongoClient(uri, { useUnifiedTopology: true });
+    const client = new MongoClient(uri, {useUnifiedTopology: true});
 
     try {
         await client.connect()
@@ -50,7 +50,7 @@ app.post('/upload/:text', param('text').isString().isLength({min: 1}).trim(), as
         const items = database.collection('items')
         const created = new Date()
         await items.insertOne({_id: textHash, text: text, created: created})
-        console.log(`Server uploaded text ${textHash} at ${created}.`)
+        console.log(`Server uploaded ${text} with ${textHash} at ${created}...`)
     } catch (err) {
         console.error(err)
     } finally {
@@ -65,25 +65,34 @@ app.post('/upload/:text', param('text').isString().isLength({min: 1}).trim(), as
 // REQUEST TEXT BY PROVIDING A HASH
 app.get('/request/:hash', param('hash').isString().isLength({min: 1}).trim(), async (req, res) => {
     const hash = req.params.hash
-    console.log(`Server received hash ${hash}.`)
+    console.log(`Server received hash ${hash} at ${new Date()}...`)
 
-    const client = new MongoClient(uri, { useUnifiedTopology: true });
+    console.time('connect')
+    const client = new MongoClient(uri, {useUnifiedTopology: true});
     try {
         await client.connect()
+        console.timeEnd('connect')
+        console.log('Server successfully connected...')
         const database = client.db('texts');
         const collection = database.collection('items');
+        console.time('findItem')
         // deepcode ignore Sqli: using param from express-validator
         await collection.findOne({_id: hash})
             .then(result => {
                 if (result) {
                     // deepcode ignore XSS: using param from express-validator
-                    console.log(`Server found ${result.text}.`)
+                    console.log(`Server found ${result.text}...`)
                     // deepcode ignore XSS: using param from express-validator
                     res.send(result.text)
                 } else {
                     res.sendStatus(404)
                 }
             })
+            .catch(error => {
+                console.error(error)
+                res.sendStatus(404)
+            })
+        console.timeEnd('findItem')
     } catch (err) {
         console.error(err)
     } finally {
@@ -93,14 +102,14 @@ app.get('/request/:hash', param('hash').isString().isLength({min: 1}).trim(), as
 
 
 // DELETE TEXTS AFTER 24 HOURS
-const checktexts = async () => {
-    console.log('Server checking for old items.')
-    const client = new MongoClient(uri, { useUnifiedTopology: true });
+const checkTexts = async () => {
+    console.log('Server checking for old items...')
+    const client = new MongoClient(uri, {useUnifiedTopology: true});
     try {
         await client.connect()
         const database = client.db('texts')
         const items = database.collection('items')
-        await items.deleteMany( { created : {"$lt" : new Date(Date.now() - DELETION_THRESHOLD) } })
+        await items.deleteMany({created: {"$lt": new Date(Date.now() - DELETION_THRESHOLD)}})
     } catch (err) {
         console.error(err)
     } finally {
@@ -108,6 +117,6 @@ const checktexts = async () => {
     }
 }
 
-setInterval(() => {
-    checktexts()
-}, DELETION_THRESHOLD)
+setTimeout(() => {
+    checkTexts()
+}, 10000)

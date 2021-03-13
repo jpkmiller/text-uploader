@@ -2,115 +2,126 @@
 <html lang="de">
 
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="description" content="Text Uploader by jpkmiller.">
+    <meta name="author" content="jpkmiller">
+    <meta name="theme-color" content="white">
     <title>Text Uploader by jpkmiller</title>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script>
-        function uploadText(text) {
-            const response = document.getElementById('response-hash')
-            const responseWithURL = document.getElementById('response-hash-with-url')
-            const URL = '/upload/' + text;
-            axios({
-                method: 'post',
-                url: URL
-            })
-                .then(data => {
-                    response.value = data.data
-                    const getUrl = window.location;
-                    responseWithURL.value = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + 'request/' + data.data
-                })
-                .catch(err => console.error(err))
-        }
-
-        function inputText() {
-            const text = document.getElementById('text').value;
-            uploadText(text)
-        }
-
-        function uploadHash(hash) {
-            const response = document.getElementById('response-text')
-            const URL = '/request/' + hash
-            axios({
-                method: 'get',
-                url: URL
-            })
-                .then(data => {
-                    response.value = data.data
-                })
-                .catch(err => console.log(err))
-        }
-
-        function inputHash() {
-            const hash = document.getElementById('hash').value;
-            uploadHash(hash)
-        }
-
-        function copy(element) {
-            const copyText = document.getElementById(element);
-            copyText.select();
-            copyText.setSelectionRange(0, 99999)
-            document.execCommand("copy");
-        }
-
-        function clearAllInputs() {
-            const inputs = document.querySelectorAll('input, textarea')
-            for (let i = 0; i < inputs.length; i++) {
-                inputs[i].value = ''
-                inputs[i].innerText = ''
-            }
-        }
-    </script>
 </head>
 
 <body>
+<header aria-label="Information">
+
     <h1 id="title">Text Uploader by
-        <a href="https://github.com/jpkmiller" target="_blank" rel="noopener">jpkmiller</a>
+        <a id="website" href="https://github.com/jpkmiller" target="_blank" rel="noopener">jpkmiller</a>
     </h1>
-    <h2 id="text-info">Texts are deleted after 24 hours. After uploading the text you receive a hash.</h2>
-    <h2>Please do not upload any sensible information.</h2>
-    
-    <label for="text">Input Text</label>
-    <textarea id="text"></textarea>
-    <button onclick="inputText()">Upload Text</button>
-    
-    <br>
-    <br>
+    <h2 id="text-info-main">Texts are deleted after 24 hours. After uploading the text you receive a hash.</h2>
+    <h2 id="text-info-sensible">Please do not upload any sensible information.</h2>
+</header>
 
-    <label for="response-hash">Response Hash</label>
-    <input type="text" id="response-hash" readonly="readonly">
-    <button onclick="copy('response-hash')">Copy Hash</button>
+<main aria-label="Main Content">
+    <p aria-label="Input Text">
+        <label for="text">Input Text</label>
+        <textarea id="text" aria-label="Input for Text."></textarea>
+        <button onclick="inputText()"
+                aria-label="Upload the Text to the database and receive a Hash as response. This can be sent to family and friends.">
+            Upload Text
+        </button>
+    </p>
+    <p aria-label="Response Hash">
+        <label for="response-hash">Response Hash</label>
+        <input type="text" id="response-hash" readonly="readonly"
+               aria-label="Response Hash. Must be pasted into the Hash input down below.">
+        <button onclick="copy('response-hash')">Copy Hash</button>
+    </p>
+    <p aria-label="Response URL">
+        <label for="response-hash-with-url">Response URL</label>
+        <input type="text" id="response-hash-with-url" readonly="readonly"
+               aria-label="Response URL. If copied and pasted into the browser it displays the text.">
+        <button onclick="copy('response-hash-with-url')">Copy URL</button>
+    </p>
+    <br>
+    <p aria-label="Input Hash">
+        <label for="hash">Input Hash</label>
+        <input type="text" id="hash" aria-label="Input for Hash.">
+        <button onclick="inputHash()" aria-label="Upload the Hash to the database and receive a text as response.">
+            Upload
+            Hash
+        </button>
+    </p>
+    <p aria-label="Response Text">
+        <label for="response-text">Response Text</label>
+        <textarea id="response-text" readonly="readonly"></textarea>
+        <button onclick="copy('response-text')">Copy Text</button>
+    </p>
+    <br>
+    <p>
+        <button onclick="clearAllInputs()" aria-label="Clear all inputs of the page.">Clear All</button>
+    </p>
 
-    <br>
-    <br>
+</main>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    function uploadText(text) {
+        const response = document.getElementById('response-hash')
+        const responseWithURL = document.getElementById('response-hash-with-url')
+        const URL = '/upload/' + text;
+        axios({
+            method: 'post',
+            url: URL
+        })
+            .then(data => {
+                response.value = data.data
+                const getUrl = window.location;
+                responseWithURL.value = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + 'request/' + data.data
+            })
+            .catch(err => console.error(err))
+    }
 
-    <label for="response-hash-with-url">Response URL</label>
-    <input type="text" id="response-hash-with-url" readonly="readonly">
-    <button onclick="copy('response-hash-with-url')">Copy URL</button>
+    function inputText() {
+        const text = document.getElementById('text').value;
+        uploadText(text)
+    }
 
-    <br>
-    <br>
-    <br>
+    function uploadHash(hash) {
+        const response = document.getElementById('response-text')
+        const URL = '/request/' + hash
+        axios({
+            method: 'get',
+            url: URL
+        })
+            .then(data => {
+                response.value = data.data
+            })
+            .catch(err => console.log(err))
+    }
 
-    <label for="hash">Input Hash</label>
-    <input type="text" id="hash">
-    <button onclick="inputHash()">Upload Hash</button>
+    function inputHash() {
+        const hash = document.getElementById('hash').value;
+        uploadHash(hash)
+    }
 
-    <br>
-    <br>
+    function copy(element) {
+        const copyText = document.getElementById(element);
+        copyText.select();
+        copyText.setSelectionRange(0, 99999)
+        document.execCommand("copy");
+    }
 
-    <label for="response-text">Response Text</label>
-    <textarea type="text" id="response-text" readonly="readonly"></textarea>
-    <button onclick="copy('response-text')">Copy Text</button>
-
-    <br>
-    <br>
-    <br>
-
-    <button onclick="clearAllInputs()">Clear All</button>
-
-    <noscript>
-        It seems that JavaScript is currently deactivated. Some functions might not be usable!
-    </noscript>
+    function clearAllInputs() {
+        const inputs = document.querySelectorAll('input, textarea')
+        for (let i = 0; i < inputs.length; i++) {
+            inputs[i].value = ''
+            inputs[i].innerText = ''
+        }
+    }
+</script>
+<noscript>
+    It seems that JavaScript is currently deactivated. Please activate it to use this site properly.
+    If not... well I can't force you, or can I? ;)
+</noscript>
 </body>
 
 </html>
